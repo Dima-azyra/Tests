@@ -9,3 +9,7 @@
 /Library
 /Logs
 /obj/Debug
+/.vsconfig
+/Assembly-CSharp.csproj
+/Assembly-CSharp-Editor.csproj
+/Tests.sln
