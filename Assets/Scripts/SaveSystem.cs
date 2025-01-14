@@ -11,7 +11,21 @@ public class SaveSystem : MonoBehaviour
 
     public static bool busy_save;
     public static bool busy_load;
-    static string way = Application.persistentDataPath;
+    static string way;
+
+    public static void start_base() 
+    {
+        if (string.IsNullOrEmpty(way))
+        {
+            if (!PlayerPrefs.HasKey("reset_files"))
+            {
+                way = $"{Application.persistentDataPath}";
+                new_way();
+            }
+            else way = $"{Application.persistentDataPath}/";
+        }
+    }
+    
 
     public static async Task load_from_file(string save_name)
     {
@@ -116,24 +130,30 @@ public class SaveSystem : MonoBehaviour
             if (!value.Equals("")) save.Add(save_name, new Dictionary<string, string>() { { key, value } });
         }
     }
-    public static void delete_key(string save_name, string key)
-    {
-        if (save.ContainsKey(save_name))
-        {
-           save[save_name].Remove(key);
-        }
-    }
 
-    public static void clear_save_and_file(string save_name)
+
+    static async void new_way()
     {
-        if (save.ContainsKey(save_name))
+      
+        if (!PlayerPrefs.HasKey("reset_files"))
         {
-            save[save_name].Clear();
-            try
+            PlayerPrefs.SetInt("reset_files", 1);
+            
+            string[] files = Directory.GetFiles(Application.persistentDataPath.Replace(Application.productName, ""));
+
+            foreach (string file in files)
             {
-                File.Delete(way + save_name + ".data");
+                using StreamReader fileR = new StreamReader(file);
+                var file_data = await fileR.ReadToEndAsync();
+                string path = file.Replace(Application.productName, $"{Application.productName}/");
+                using StreamWriter fileW = new StreamWriter(path);
+                await fileW.WriteAsync(file_data);
             }
-            catch { }   
+            way = $"{Application.persistentDataPath}/";
+            foreach (string file in files)
+            {
+                File.Delete(file);
+            }
         }
     }
 }

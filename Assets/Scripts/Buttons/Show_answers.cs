@@ -19,22 +19,23 @@ public class Show_answers : MonoBehaviour, IPointerClickHandler
 
     private async void Awake()
     {
+        start_base();
         instance = this;
         string s = await get_value("Show_answers", "Show");
         if (s != null)
         {
             _show = int.Parse(s);
-            if (_show == 1) set_show();
-            else set_hide();
+            if (_show == 1) set_show(false);
+            else set_hide(false);
         }
-        else set_hide();
+        else set_hide(false);
         gameObject.SetActive(false);
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (!set) set_hide();
-        else if (!check) set_show();
+        if (!set) set_hide(true);
+        else if (!check) set_show(true);
 
         foreach (Transform child in content)
         {
@@ -42,21 +43,29 @@ public class Show_answers : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    void set_show()
+    async void set_show(bool is_change)
     {
         _show = 1;
         set_color(blue);
         set = false;
         transform.GetChild(0).GetComponent<TMP_Text>().text = show;
-        set_save("Show_answers", "Show", _show + "");
+        if (is_change)
+        {
+            set_save("Show_answers", "Show", _show + "");
+            await save_to_file("Show_answers");
+        }
     }
-    void set_hide()
+   async void set_hide(bool is_change)
     {
         _show = 0;
         set_color(yellow);
         set = true;
         transform.GetChild(0).GetComponent<TMP_Text>().text = hide;
-        set_save("Show_answers", "Show", _show + "");
+        if (is_change)
+        {
+            set_save("Show_answers", "Show", _show + "");
+            await save_to_file("Show_answers");
+        }
     }
 
     public void set_color(Color color)

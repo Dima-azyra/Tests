@@ -31,6 +31,7 @@ public class Controller : MonoBehaviour
     string question;
     private void Awake()
     {
+        SaveSystem.start_base();
         count_text.text = "";
         instance = this;
         Choose.GetComponent<Choose>().load();
